@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181"  # Exposes the default Zookeeper port
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+    networks:
+      - spring-microservices
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"  # Exposes the Kafka broker port
+    environment:
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092  # Listen on all interfaces (0.0.0.0:9092)
+      - KAFKA_ADVERTISED_LISTENER=PLAINTEXT://kafka:9092  # Internal network hostname (docker service name)
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181   # Zookeeper connection
+      - KAFKA_LISTENER_SECURITY_PROTOCOL=PLAINTEXT  # Define the security protocol
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT  # Ensure the correct protocol map
+      - KAFKA_LISTENER_NAMES=PLAINTEXT  # Set the listener name to match the security protocol
+      - KAFKA_CREATE_TOPICS=userDeliveryAddressChange:1:1,userEmailChange:1:1  # Create topics on startup
+    networks:
+      - spring-microservices
+    depends_on:
+      - zookeeper
+  
+  
+  userservice-v1:
+    build:
+      context: ./userservice1
+    container_name: userservice-v1
+    ports:
+      - "8080"
+    networks:
+      - spring-microservices
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  userservice-v2:
+    build:
+      context: ./userservice2
+    container_name: userservice-v2
+    ports:
+      - "8082"
+    networks:
+      - spring-microservices
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  orderservice:
+    build:
+      context: ./orderservice
+    container_name: orderservice
+    ports:
+      - "8081"
+    networks:
+      - spring-microservices
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  apigateway:
+    build:
+      context: ./apigateway
+    container_name: apigateway
+    ports:
+      - "9090:9090"
+    networks:
+      - spring-microservices
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      - userservice-v1
+      - userservice-v2
+      - orderservice
+
+
+networks:
+  spring-microservices:
+    driver: bridge
