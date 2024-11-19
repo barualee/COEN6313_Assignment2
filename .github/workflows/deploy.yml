@@ -13,6 +13,23 @@ jobs:
     # Checkout the code from the repository
     - name: Checkout code
       uses: actions/checkout@v3
+    
+    - name: Build the Jars
+      run: | 
+        sudo apt update
+        sudo apt install maven -y
+        cd ./userservice1
+        mvn clean install -D skipTests
+        cd ../
+        cd ./userservice2
+        mvn clean install -D skipTests
+        cd ../
+        cd ./orderservice
+        mvn clean install -D skipTests
+        cd ../
+        cd ./apigateway
+        mvn clean install -D skipTests
+        cd ../
 
     # Set up SSH key to authenticate with EC2
     # - name: Set up SSH key
@@ -28,18 +45,17 @@ jobs:
         echo "$SSH_PRIVATE_KEY" > temp_key.pem
         chmod 400 temp_key.pem
 
+        ssh -o StrictHostKeyChecking=no -i temp_key.pem ubuntu@${{ secrets.EC2_IP_ADDRESS }} "rm -rf /home/ubuntu/app && exit"
         ssh -o StrictHostKeyChecking=no -i temp_key.pem ubuntu@${{ secrets.EC2_IP_ADDRESS }} "mkdir -p /home/ubuntu/app && exit"
         scp -o StrictHostKeyChecking=no -i temp_key.pem -r ./* ubuntu@${{ secrets.EC2_IP_ADDRESS }}:/home/ubuntu/app/
+        ssh -o StrictHostKeyChecking=no -i temp_key.pem ubuntu@${{ secrets.EC2_IP_ADDRESS }} "rm -rf /home/ubuntu/app/temp_key.pem && exit"
         
         # Use SSH to execute commands on your EC2 instance
         ssh -o StrictHostKeyChecking=no -i temp_key.pem ubuntu@${{ secrets.EC2_IP_ADDRESS }} << 'EOF'
           echo "Deploying application to EC2..."
-          # mkdir /home/ubuntu/myapp
           cd /home/ubuntu/myapp || exit 1  # Go to your app directory
-          #git pull origin main || exit 1     # Pull the latest changes
-          # Add other deployment commands here, like building the app or restarting services
-          sudo snap install docker
-          sudo sleep 5
+          # sudo snap install docker
+          # sudo sleep 5
           sudo docker-compose up -d
           echo "Deployment complete!"
         EOF
