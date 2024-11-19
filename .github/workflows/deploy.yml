@@ -23,14 +23,14 @@ jobs:
     # Deploy to EC2 via SSH
     - name: Deploy to EC2
       run: |
-        echo ${{ secrets.EC2_IP_ADDRESS }} > temp_key.pem
+        echo ${{ secrets.EC2_SSH_PRIVATE_KEY }} > temp_key.pem
         chmod 400 temp_key.pem
 
         ssh -o StrictHostKeyChecking=no -i temp_key.pem ubuntu@${{ secrets.EC2_IP_ADDRESS }} "mkdir -p /home/ubuntu/app && exit"
         scp -o StrictHostKeyChecking=no -i temp_key.pem -r ./* ubuntu@${{ secrets.EC2_IP_ADDRESS }}:/home/ubuntu/app/
         
         # Use SSH to execute commands on your EC2 instance
-        ssh -o StrictHostKeyChecking=no -A ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_IP_ADDRESS }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i temp_key.pem ubuntu@${{ secrets.EC2_IP_ADDRESS }} << 'EOF'
           echo "Deploying application to EC2..."
           # mkdir /home/ubuntu/myapp
           cd /home/ubuntu/myapp || exit 1  # Go to your app directory
