@@ -1,0 +1,36 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch. You can change this to any branch you want.
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the code from the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Set up SSH key to authenticate with EC2
+    - name: Set up SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+
+    # Deploy to EC2 via SSH
+    - name: Deploy to EC2
+      run: |
+        # Use SSH to execute commands on your EC2 instance
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_IP_ADDRESS }} << 'EOF'
+          echo "Deploying application to EC2..."
+          cd /home/ubuntu/myapp || exit 1  # Go to your app directory
+          git pull origin main || exit 1     # Pull the latest changes
+          # Add other deployment commands here, like building the app or restarting services
+          sudo snap install docker
+          sudo sleep 5
+          sudo docker-compose up -d
+          echo "Deployment complete!"
+        EOF
