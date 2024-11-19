@@ -23,6 +23,7 @@ jobs:
     # Deploy to EC2 via SSH
     - name: Deploy to EC2
       run: |
+        ssh -o StrictHostKeyChecking=no -A ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_IP_ADDRESS }} "mkdir -p /home/ubuntu/app && exit"
         scp -o StrictHostKeyChecking=no -A ~/.ssh/id_rsa -r ./* ubuntu@${{ secrets.EC2_IP_ADDRESS }}:/home/ubuntu/app/
         # Use SSH to execute commands on your EC2 instance
         ssh -o StrictHostKeyChecking=no -A ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_IP_ADDRESS }} << 'EOF'
