@@ -23,7 +23,7 @@ jobs:
     # Deploy to EC2 via SSH
     - name: Deploy to EC2
       run: |
-        echo "$SSH_PRIVATE_KEY" > temp_key.pem
+        echo "$EC2_SSH_PRIVATE_KEY" > temp_key.pem
         chmod 400 temp_key.pem
 
         ssh -o StrictHostKeyChecking=no -i temp_key.pem ubuntu@${{ secrets.EC2_IP_ADDRESS }} "mkdir -p /home/ubuntu/app && exit"
