@@ -26,6 +26,7 @@ jobs:
         # Use SSH to execute commands on your EC2 instance
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_IP_ADDRESS }} << 'EOF'
           echo "Deploying application to EC2..."
+          mkdir /home/ubuntu/myapp
           cd /home/ubuntu/myapp || exit 1  # Go to your app directory
           git pull origin main || exit 1     # Pull the latest changes
           # Add other deployment commands here, like building the app or restarting services
