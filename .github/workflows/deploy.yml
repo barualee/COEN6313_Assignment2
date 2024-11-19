@@ -23,12 +23,13 @@ jobs:
     # Deploy to EC2 via SSH
     - name: Deploy to EC2
       run: |
+        scp -o StrictHostKeyChecking=no -A ~/.ssh/id_rsa -r ./* ubuntu@${{ secrets.EC2_IP_ADDRESS }}:/home/ubuntu/app/
         # Use SSH to execute commands on your EC2 instance
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_IP_ADDRESS }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -A ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_IP_ADDRESS }} << 'EOF'
           echo "Deploying application to EC2..."
-          mkdir /home/ubuntu/myapp
+          # mkdir /home/ubuntu/myapp
           cd /home/ubuntu/myapp || exit 1  # Go to your app directory
-          git pull origin main || exit 1     # Pull the latest changes
+          #git pull origin main || exit 1     # Pull the latest changes
           # Add other deployment commands here, like building the app or restarting services
           sudo snap install docker
           sudo sleep 5
