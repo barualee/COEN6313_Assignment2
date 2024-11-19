@@ -17,6 +17,7 @@ jobs:
     - name: Build the Jars
       run: | 
         sudo apt update
+        sudo apt install openjdk-21-jdk -y
         sudo apt install maven -y
         cd ./userservice1
         mvn clean install -D skipTests
