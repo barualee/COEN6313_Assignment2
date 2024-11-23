@@ -53,10 +53,9 @@ jobs:
           sudo rm -rf /home/azureuser/app
           sudo mkdir -p /home/azureuser/app
           sudo chown azureuser:azureuser /home/azureuser/app
-          sudo chmod u+w /home/azureuser/app
         EOF
 
-        scp -o StrictHostKeyChecking=no -i azure_key.pem -r ./* azureuser@${{ secrets.AZURE_IP_ADDRESS }}:~/.
+        scp -o StrictHostKeyChecking=no -i azure_key.pem -r ./* azureuser@${{ secrets.AZURE_IP_ADDRESS }}:/home/azureuser/app
         
         # Use SSH to execute commands on your EC2 instance
         ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} << 'EOF'
