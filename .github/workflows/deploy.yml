@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main  # Trigger on push to the main branch. You can change this to any branch you want.
+  workflow_dispatch:  # Allows manual triggering
+    branches:
+      - main
 
 jobs:
   deploy:
