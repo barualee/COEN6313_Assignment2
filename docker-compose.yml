@@ -15,7 +15,7 @@ services:
     image: wurstmeister/kafka:latest
     container_name: kafka
     ports:
-      - "9092:9092"  # Exposes the Kafka broker port
+      - "9092"  # Exposes the Kafka broker port
     environment:
       - KAFKA_LISTENERS=PLAINTEXT://kafka:9092  # Listen on all interfaces (0.0.0.0:9092)
       - KAFKA_ADVERTISED_LISTENER=PLAINTEXT://kafka:9092  # Internal network hostname (docker service name)
@@ -28,8 +28,7 @@ services:
       - spring-microservices
     depends_on:
       - zookeeper
-  
-  
+
   userservice-v1:
     build:
       context: ./userservice1
@@ -68,7 +67,7 @@ services:
       context: ./apigateway
     container_name: apigateway
     ports:
-      - "9090:9090"
+      - "80:80"
     networks:
       - spring-microservices
     environment:
@@ -77,7 +76,6 @@ services:
       - userservice-v1
       - userservice-v2
       - orderservice
-
 
 networks:
   spring-microservices:
