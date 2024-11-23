@@ -38,21 +38,21 @@ jobs:
     #   with:
     #     ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}#
 
-    # Deploy to EC2 via SSH
-    - name: Deploy to EC2
+    # Deploy to VM via SSH
+    - name: Deploy to VM
       env:
-        SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }} 
+        SSH_PRIVATE_KEY: ${{ secrets.AZURE_SSH_PRIVATE_KEY }} 
       run: |
-        echo "$SSH_PRIVATE_KEY" > temp_key.pem
-        chmod 400 temp_key.pem
+        echo "$SSH_PRIVATE_KEY" > azure_key.pem
+        chmod 400 azure_key.pem
 
-        ssh -o StrictHostKeyChecking=no -i temp_key.pem ubuntu@${{ secrets.EC2_IP_ADDRESS }} "rm -rf /home/ubuntu/app && exit"
-        ssh -o StrictHostKeyChecking=no -i temp_key.pem ubuntu@${{ secrets.EC2_IP_ADDRESS }} "mkdir -p /home/ubuntu/app && exit"
-        scp -o StrictHostKeyChecking=no -i temp_key.pem -r ./* ubuntu@${{ secrets.EC2_IP_ADDRESS }}:/home/ubuntu/app/
-        ssh -o StrictHostKeyChecking=no -i temp_key.pem ubuntu@${{ secrets.EC2_IP_ADDRESS }} "rm -rf /home/ubuntu/app/temp_key.pem && exit"
+        ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} "rm -rf /home/ubuntu/app && exit"
+        ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} "mkdir -p /home/ubuntu/app && exit"
+        scp -o StrictHostKeyChecking=no -i azure_key.pem -r ./* azureuser@${{ secrets.AZURE_IP_ADDRESS }}:/home/ubuntu/app/
+        ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} "rm -rf /home/ubuntu/app/azure_key.pem && exit"
         
         # Use SSH to execute commands on your EC2 instance
-        ssh -o StrictHostKeyChecking=no -i temp_key.pem ubuntu@${{ secrets.EC2_IP_ADDRESS }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} << 'EOF'
           echo "Deploying application to EC2..."
           cd /home/ubuntu/myapp || exit 1  # Go to your app directory
           # sudo snap install docker
@@ -60,4 +60,4 @@ jobs:
           sudo docker-compose up -d
           echo "Deployment complete!"
         EOF
-        rm temp_key.pem  # Clean up the temporary file
+        rm azure_key.pem  # Clean up the temporary file
