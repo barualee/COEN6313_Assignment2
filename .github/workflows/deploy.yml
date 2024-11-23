@@ -40,12 +40,6 @@ jobs:
         mvn clean install -D skipTests
         cd ../
 
-    # Set up SSH key to authenticate with EC2
-    # - name: Set up SSH key
-    #   uses: webfactory/ssh-agent@v0.5.3
-    #   with:
-    #     ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}#
-
     # Deploy to VM via SSH
     - name: Deploy to VM
       env:
@@ -55,6 +49,7 @@ jobs:
         chmod 400 azure_key.pem
 
         ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} << 'EOF'
+          sudo docker-compose down
           sudo rm -rf /home/azureuser/app
           sudo mkdir -p /home/azureuser/app
           sudo chown azureuser:azureuser /home/azureuser/app
@@ -68,8 +63,6 @@ jobs:
           echo "Deploying application to EC2..."
           rm -rf /home/azureuser/app/azure_key.pem
           cd /home/azureuser/app || exit 1  # Go to your app directory
-          # sudo snap install docker
-          # sudo sleep 5
           sudo docker-compose up -d
           echo "Deployment complete!"
         EOF
