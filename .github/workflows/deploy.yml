@@ -54,15 +54,15 @@ jobs:
         echo "$SSH_PRIVATE_KEY" > azure_key.pem
         chmod 400 azure_key.pem
 
-        ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} "rm -rf /home/ubuntu/app && exit"
-        ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} "mkdir -p /home/ubuntu/app && exit"
-        scp -o StrictHostKeyChecking=no -i azure_key.pem -r ./* azureuser@${{ secrets.AZURE_IP_ADDRESS }}:/home/ubuntu/app/
-        ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} "rm -rf /home/ubuntu/app/azure_key.pem && exit"
+        ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} "sudo rm -rf /home/azureuser/app && exit"
+        ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} "sudo mkdir -p /home/azureuser/app && exit"
+        scp -o StrictHostKeyChecking=no -i azure_key.pem -r ./* azureuser@${{ secrets.AZURE_IP_ADDRESS }}:/home/azureuser/app/
+        ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} "rm -rf /home/azureuser/app/azure_key.pem && exit"
         
         # Use SSH to execute commands on your EC2 instance
         ssh -o StrictHostKeyChecking=no -i azure_key.pem azureuser@${{ secrets.AZURE_IP_ADDRESS }} << 'EOF'
           echo "Deploying application to EC2..."
-          cd /home/ubuntu/myapp || exit 1  # Go to your app directory
+          cd /home/azureuser/app || exit 1  # Go to your app directory
           # sudo snap install docker
           # sudo sleep 5
           sudo docker-compose up -d
