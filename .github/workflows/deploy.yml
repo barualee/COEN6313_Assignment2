@@ -16,11 +16,15 @@ jobs:
     # Checkout the code from the repository
     - name: Checkout code
       uses: actions/checkout@v3
+
+    - name: Set up Java 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
     
     - name: Build the Jars
       run: | 
         sudo apt update
-        sudo apt install openjdk-21-jdk -y
         sudo apt install maven -y
         cd ./userservice1
         mvn clean install -D skipTests
